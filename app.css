@@ -1,0 +1,67 @@
+img{
+  width: 80%;
+  display: block;
+  margin: auto;
+}
+input[type=range]{
+  border: none;
+  background: white;
+}
+.navbar-header{
+  position: relative;
+}
+.btn-navbar-right{
+  position: absolute;
+  top: .8rem;
+  right: 1rem;
+}
+.time{
+  display: flex;
+  margin-top: 2rem;
+}
+.time > *{
+  flex-basis: 3.5rem;
+  flex-grow: 1;
+}
+.time > input{
+  flex-grow: 20;
+}
+.time > .remaining{
+  text-align: right;
+}
+.playback-control{
+  display: flex;
+}
+.volume-control{
+  display: flex;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+.volume-control > input{
+  margin: auto .5rem;
+}
+.form-search{
+  display: flex;
+}
+.form-search > input[type=text]{
+  margin-right: .5rem;
+}
+.alert-no-search-result{
+  position: fixed;
+  top: 50%;
+  left: 0;
+  width: 90vw;
+  box-sizing: border-box;
+  margin: -2rem 5vw 0 5vw;
+}
+#title{
+  font-size: 200%;
+  text-align: center;
+  margin-top: 1.5rem;
+  margin-bottom: .5rem;
+}
+#artist{
+  font-size: 140%;
+  text-align: center;
+  margin-top: 0.5rem;
+}

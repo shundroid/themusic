@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,user-scalable=no,initial-scale=1">
+
+    <title>Hello World</title>
+    <link rel="stylesheet" href="css/bootstrap.min.css">
+    <link rel="stylesheet" href="app.css">
+
+    <script src="search.js" defer></script>
+  </head>
+  <body>
+    <nav class="navbar navbar-default">
+      <div class="container-fluid">
+        <div class="navbar-header">
+          <a class="navbar-brand" href="#">
+            the music
+          </a>
+          <a href="index.html" class="btn btn-default btn-navbar-right">
+            <i class="glyphicon glyphicon-music"></i>
+          </a>
+        </div>
+      </div>
+    </nav>
+    <div class="container">
+      <form class="form-inline">
+        <div class="form-group form-search">
+          <input type="text" class="form-control" placeholder="検索">
+          <button class="btn btn-default" type="button">
+            <i class="glyphicon glyphicon-search"></i>
+          </button>
+        </div>
+      </form>
+      <div class="alert alert-warning alert-no-search-result" role="alert">
+        該当する検索結果がありませんでした。
+      </div>
+    </div>
+  </body>
+</html>
