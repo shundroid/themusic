@@ -65,3 +65,22 @@ input[type=range]{
   text-align: center;
   margin-top: 0.5rem;
 }
+
+#search_result {
+  display: none;
+}
+.artwork {
+  width: 70px;
+  height: 70px;
+  float: left;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+.col_name {
+  font-size: x-small;
+}
+
+.dlbutton {
+  float: right;
+}
