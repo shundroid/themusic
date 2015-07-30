@@ -12,12 +12,67 @@ NodeList.prototype.toArray = function(){
   return Array.prototype.slice.call(this);
 };
 
+function createFilenameFromURL(url){
+  url = new URL(url);
+  return url.host + url.pathname.replace(/[\/~]/g, "-");
+}
+
+function saveMusic(resource){
+  var fileName = createFilenameFromURL(resource.url);
+  return new Promise((resolve, reject) => {
+    console.log("attempt to save a blob as " + fileName);
+    console.log(resource.blob);
+    var req = storage.addNamed(resource.blob, fileName);
+    req.onsuccess = function(){
+      resolve(this.result);
+    };
+    req.onerror = function(){
+      reject(this.error);
+    };
+  });
+}
+
+function fetchMusic(url){
+  return new Promise((resolve, reject) => {
+    console.log("start fetching from " + url);
+    var req = new XMLHttpRequest({mozSystem: true});
+    req.onload = () => {
+      var blob = req.response;
+      resolve({url: url, blob: blob}); 
+    };
+    req.onerror = (e) =>{
+      reject(e);
+    };
+    req.open("GET", url, true);
+    req.responseType = "blob";
+    req.send();
+  });
+}
+
 function downloadMusic(url){
-  console.log(url);
+  return fetchMusic(url).then(saveMusic).then(name => {
+    return new Promise((resolve, reject) => {
+      resolve(name);
+    });
+  });
+}
+
+function showDownloadDialog(urlList){
+}
+
+function hideDownloadDialog(){
 }
 
 function downloadAlbum(urlList){
-  urlList.forEach(downloadMusic);
+  showDownloadDialog(urlList);
+  Promise.all(urlList.map(downloadMusic)).then(() => {
+    console.log("all files have been downloaded");
+    hideDownloadDialog();
+    window.location.href = "index.html#selectMusic";
+  }, error => {
+    console.log(error);
+    hideDownloadDialog();
+  });
 }
 
 function formatQueryParameters(parameters){
@@ -63,6 +118,7 @@ function findMusicList(documentElement){
 function hasEnclosure(elm){
   return elm.tagName == "enclosure";
 }
+
 
 function isItem(elm){
   return elm.tagName == "item";

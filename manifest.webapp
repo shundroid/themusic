@@ -14,6 +14,10 @@
   },
   "type": "privileged",
   "permissions": {
-    "systemXHR":{}
+    "systemXHR":{},
+    "device-storage:music": {
+      "description": "",
+      "access": "readwrite"
+    }    
   }
 }
