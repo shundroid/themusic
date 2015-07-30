@@ -1,4 +1,24 @@
 const endpoint = "https://itunes.apple.com/search";
+var storage = navigator.getDeviceStorage("music");
+
+Array.prototype.flatten = function(){
+  return Array.prototype.concat.apply([], this);
+};
+Array.prototype.toArray = function(){
+  return this;
+};
+
+NodeList.prototype.toArray = function(){
+  return Array.prototype.slice.call(this);
+};
+
+function downloadMusic(url){
+  console.log(url);
+}
+
+function downloadAlbum(urlList){
+  urlList.forEach(downloadMusic);
+}
 
 function formatQueryParameters(parameters){
   var formatted = [];
@@ -24,6 +44,30 @@ function showSearchResult(result){
   }
 }
 
+function findChannel(elm){
+  var result = {};
+  for(var i = 0; i < elm.childNodes.length; i++){
+    if(elm.childNodes[i].tagName == "channel"){
+      result = elm.childNodes[i];
+      break;
+    }
+  }
+  return result;
+
+}
+
+function findMusicList(documentElement){
+  return (findChannel(documentElement).childNodes || []).toArray();
+}
+
+function hasEnclosure(elm){
+  return elm.tagName == "enclosure";
+}
+
+function isItem(elm){
+  return elm.tagName == "item";
+}
+
 function onClickDL() {
   /*
     this.dataset.feedには、xmlのデータが入っていて、
@@ -46,18 +90,12 @@ function onClickDL() {
       console.error(e);
     }
     if (document_obj) {
-      var urls = [];
-      var childs = document_obj.documentElement.childNodes[0].childNodes;
-      for (var i = 0; i < childs.length; i++) {
-        if (childs[i].tagName === "item") {
-          for (var j = 0; j < childs[i].childNodes.length; j++) {
-            if (childs[i].childNodes[j].tagName === "enclosure") {
-              urls.push(childs[i].childNodes[j].getAttribute("url"));
-            }
-          }
-        }
-      }
-      
+      var urls = findMusicList(document_obj.documentElement).filter(isItem).map(item => {
+        return item.childNodes.toArray();
+      }).flatten().filter(hasEnclosure).map(item => {
+        return item.getAttribute("url");
+      });
+      downloadAlbum(urls);
     }
   };
   req.open("GET", this.dataset.feed);
