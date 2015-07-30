@@ -44,5 +44,35 @@
         </div>
       </div>
     </div>
+
+    <!-- 1.モーダル表示のためのボタン -->
+    <button class="btn btn-primary" data-toggle="modal" data-target="#modal-example" id="show_dialog">
+      モーダルダイアログ表示
+    </button>
+
+    <!-- 2.モーダルの配置 -->
+    <div class="modal" id="modal-example" tabindex="-1">
+      <div class="modal-dialog">
+        <!-- 3.モーダルのコンテンツ -->
+        <div class="modal-content">
+          <!-- 4.モーダルのヘッダ -->
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" id="hide_dialog">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title" id="modal-label">ダウンロード中</h4>
+          </div>
+          <!-- 5.モーダルのボディ -->
+          <div class="modal-body" id="progress_result">
+            
+          </div>
+          <!-- 6.モーダルのフッタ -->
+          <div class="modal-footer">
+<!--             <button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+            <button type="button" class="btn btn-primary">保存</button>
+ -->          </div>
+        </div>
+      </div>
+    </div>
   </body>
 </html>

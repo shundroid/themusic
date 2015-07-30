@@ -18,6 +18,9 @@ function createFilenameFromURL(url){
 }
 
 function saveMusic(resource){
+  // ダウンロード終了
+  console.log("downloaded_1");
+  changeProgressStatus(getURLFilename(resource.url), "完了");
   var fileName = createFilenameFromURL(resource.url);
   return new Promise((resolve, reject) => {
     console.log("attempt to save a blob as " + fileName);
@@ -43,6 +46,9 @@ function fetchMusic(url){
     req.onerror = (e) =>{
       reject(e);
     };
+    req.addEventListener("progress", event => {
+      changeProgressStatus(getURLFilename(url), "ダウンロード中(" + Math.floor(parseInt(event.loaded/event.total*10000)/100).toString() + "%)");
+    });
     req.open("GET", url, true);
     req.responseType = "blob";
     req.send();
@@ -57,10 +63,51 @@ function downloadMusic(url){
   });
 }
 
+function getURLFilename(url) {
+  var _url = new URL(url);
+  var pathname = _url.pathname;
+  return pathname.substring(pathname.lastIndexOf("/") + 1);
+}
+
 function showDownloadDialog(urlList){
+  document.getElementById("show_dialog").click();
+  var listElem = document.getElementById("progress_result");
+  urlList.forEach(i => {
+    listElem.appendChild(createProgressElement(getURLFilename(i), "ダウンロード中"));
+  });
+  console.log(urlList);
+}
+
+function createProgressElement(fileName, status) {
+  var div = document.createElement("div");
+  div.className = "progress";
+  console.log(fileName);
+  div.id = fileName;
+
+  var st_e = document.createElement("div");
+  st_e.className = "prog_status";
+  st_e.textContent = status;
+  st_e.style.float = "right";
+  div.appendChild(st_e);
+
+  var fName = document.createElement("div");
+  fName.className = "prog_fn";
+  fName.textContent = fileName;
+  div.appendChild(fName);
+
+  return div;
+}
+
+function changeProgressStatus(fileName, newStatus) {
+  var elem = document.getElementById(fileName);
+  if (elem) {
+    elem.childNodes.toArray().filter(i => { return i.className == "prog_status"; })[0].textContent = newStatus;
+  }
 }
 
 function hideDownloadDialog(){
+  document.getElementById("hide_dialog").click();
+  document.getElementById("progress_result").innerHTML = "";
 }
 
 function downloadAlbum(urlList){
@@ -70,7 +117,7 @@ function downloadAlbum(urlList){
     hideDownloadDialog();
     window.location.href = "index.html#selectMusic";
   }, error => {
-    console.log(error);
+    console.error(error);
     hideDownloadDialog();
   });
 }
