@@ -86,6 +86,7 @@ function existFile(f) {
 }
 
 function showDownloadDialog(urlList){
+  //document.getElementById("progress_result").innerHTML = "";
   document.getElementById("show_dialog").click();
   var listElem = document.getElementById("progress_result");
   urlList.forEach(i => {
@@ -116,6 +117,10 @@ function clickDLButton() {
   });
 }
 function createProgressElement(fileName, status) {
+  if (document.getElementById(getURLFilename(fileName))) {
+    // すでにある場合はRETURN
+    return;
+  }
   var div = document.createElement("div");
   div.className = "progress_music";
   console.log(fileName);
@@ -192,7 +197,6 @@ function changeProgressStatus(fileName, newStatus) {
 
 function hideDownloadDialog(){
   document.getElementById("hide_dialog").click();
-  document.getElementById("progress_result").innerHTML = "";
 }
 
 function downloadAlbum(urlList){

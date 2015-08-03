@@ -85,10 +85,6 @@ input[type=range]{
   float: right;
 }
 
-#show_dialog {
-  display: none;
-}
-
 #file_select {
   display: none;
 }
@@ -98,4 +94,8 @@ input[type=range]{
 }
 .prog_fn {
   font-weight: bold;
+}
+
+#search_result_artist {
+  margin-top: 5px;
 }
