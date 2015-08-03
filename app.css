@@ -84,3 +84,18 @@ input[type=range]{
 .dlbutton {
   float: right;
 }
+
+#show_dialog {
+  display: none;
+}
+
+#file_select {
+  display: none;
+}
+
+.progress_music {
+  margin-bottom: 5px;
+}
+.prog_fn {
+  font-weight: bold;
+}

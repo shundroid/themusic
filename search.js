@@ -37,21 +37,23 @@ function saveMusic(resource){
 
 function fetchMusic(url){
   return new Promise((resolve, reject) => {
-    console.log("start fetching from " + url);
-    var req = new XMLHttpRequest({mozSystem: true});
-    req.onload = () => {
-      var blob = req.response;
-      resolve({url: url, blob: blob}); 
-    };
-    req.onerror = (e) =>{
-      reject(e);
-    };
-    req.addEventListener("progress", event => {
-      changeProgressStatus(getURLFilename(url), "ダウンロード中(" + Math.floor(parseInt(event.loaded/event.total*10000)/100).toString() + "%)");
-    });
-    req.open("GET", url, true);
-    req.responseType = "blob";
-    req.send();
+      console.log("downloaded file " + url);
+      changeProgressStatus(getURLFilename(url), "ダウンロード済み")
+      console.log("start fetching from " + url);
+      var req = new XMLHttpRequest({mozSystem: true});
+      req.onload = () => {
+        var blob = req.response;
+        resolve({url: url, blob: blob}); 
+      };
+      req.onerror = (e) =>{
+        reject(e);
+      };
+      req.addEventListener("progress", event => {
+        changeProgressStatus(getURLFilename(url), "ダウンロード中(" + Math.floor(parseInt(event.loaded/event.total*10000)/100).toString() + "%)");
+      });
+      req.open("GET", url, true);
+      req.responseType = "blob";
+      req.send();
   });
 }
 
@@ -69,31 +71,114 @@ function getURLFilename(url) {
   return pathname.substring(pathname.lastIndexOf("/") + 1);
 }
 
+function existFile(f) {
+  return new Promise(resolve => {
+    var req = storage.get(f);
+    req.onsuccess = function() {
+      console.log(this.result);
+      resolve(true);
+    };
+    req.onerror = function() {
+      console.warn(this.error);
+      resolve(false);
+    };
+  });
+}
+
 function showDownloadDialog(urlList){
   document.getElementById("show_dialog").click();
   var listElem = document.getElementById("progress_result");
   urlList.forEach(i => {
-    listElem.appendChild(createProgressElement(getURLFilename(i), "ダウンロード中"));
+  	existFile(createFilenameFromURL(i)).then(result => {
+  	  console.log(result);
+  	  var statusT = result ? "ダウンロード済み": "保留中";//existFile(createFilenameFromURL(i)) ? "ダウンロード済み" : "保留中";
+      listElem.appendChild(createProgressElement(i, statusT));
+  	});
   });
   console.log(urlList);
 }
-
+function clickRemoveButton() {
+  var fn = this.dataset.filename;
+  var d = storage.delete(createFilenameFromURL(fn));
+  d.onsuccess = () => {
+  	console.log("File deleted");
+  	changeProgressStatus(getURLFilename(fn), "削除済み");
+  };
+}
+function clickDLButton() {
+  downloadMusic(this.dataset.filename).then(() => {
+    console.log("downloaded");
+    hideDownloadDialog();
+    window.location.href = "index.html#selectMusic";
+  }, error => {
+    console.warn(error);
+    hideDownloadDialog();
+  });
+}
 function createProgressElement(fileName, status) {
   var div = document.createElement("div");
-  div.className = "progress";
+  div.className = "progress_music";
   console.log(fileName);
-  div.id = fileName;
+  div.id = getURLFilename(fileName);
 
-  var st_e = document.createElement("div");
+  // ダウンロードボタン
+  var dlbutton = document.createElement("button");
+  dlbutton.className = "btn btn-default dlbutton";
+  dlbutton.style.display = "none";
+  existFile(createFilenameFromURL(fileName)).then(result => {
+  	// ファイルが存在していなかったら
+  	if (!result) dlbutton.style.display = "block";
+  });
+  dlbutton.dataset.filename = fileName;
+  dlbutton.addEventListener("click", clickDLButton);
+
+  var i = document.createElement("i");
+  i.className  = "glyphicon glyphicon-download-alt";
+  dlbutton.appendChild(i);
+  // dlbutton.dataset.feed = obj.feedUrl;
+  // dlbutton.addEventListener("click", onClickDL);
+  div.appendChild(dlbutton);
+
+  // 削除ボタン
+  var rmbutton = document.createElement("button");
+  rmbutton.className = "btn btn-default dlbutton";
+  rmbutton.dataset.filename = fileName;
+  rmbutton.style.display = "none";
+  existFile(createFilenameFromURL(fileName)).then(result => {
+  	// ファイルが存在していたら
+  	if (result) rmbutton.style.display = "block";
+  });
+  rmbutton.addEventListener("click", clickRemoveButton);
+  var i = document.createElement("i");
+  i.className  = "glyphicon glyphicon-trash";
+  rmbutton.appendChild(i);
+  // dlbutton.dataset.feed = obj.feedUrl;
+  // dlbutton.addEventListener("click", onClickDL);
+  div.appendChild(rmbutton);
+
+  var plbutton = document.createElement("button");
+  plbutton.className = "btn btn-default dlbutton";
+  var i = document.createElement("i");
+  i.className  = "glyphicon glyphicon-play";
+  plbutton.appendChild(i);
+  // dlbutton.dataset.feed = obj.feedUrl;
+  // dlbutton.addEventListener("click", onClickDL);
+  div.appendChild(plbutton);
+
+
+  var fName = document.createElement("span");
+  fName.className = "prog_fn";
+  fName.textContent = getURLFilename(fileName);
+  div.appendChild(fName);
+
+  var br = document.createElement("br");
+  div.appendChild(br);
+
+  var st_e = document.createElement("span");
   st_e.className = "prog_status";
   st_e.textContent = status;
-  st_e.style.float = "right";
+  //st_e.style.float = "right";
   div.appendChild(st_e);
-
-  var fName = document.createElement("div");
-  fName.className = "prog_fn";
-  fName.textContent = fileName;
-  div.appendChild(fName);
 
   return div;
 }
@@ -112,14 +197,14 @@ function hideDownloadDialog(){
 
 function downloadAlbum(urlList){
   showDownloadDialog(urlList);
-  Promise.all(urlList.map(downloadMusic)).then(() => {
-    console.log("all files have been downloaded");
-    hideDownloadDialog();
-    window.location.href = "index.html#selectMusic";
-  }, error => {
-    console.error(error);
-    hideDownloadDialog();
-  });
+  // Promise.all(urlList.map(downloadMusic)).then(() => {
+  //   console.log("all files have been downloaded");
+  //   hideDownloadDialog();
+  //   window.location.href = "index.html#selectMusic";
+  // }, error => {
+  //   console.warn(error);
+  //   hideDownloadDialog();
+  // });
 }
 
 function formatQueryParameters(parameters){
@@ -190,7 +275,7 @@ function onClickDL() {
       }
     }
     catch (e) {
-      console.error(e);
+      console.warn(e);
     }
     if (document_obj) {
       var urls = findMusicList(document_obj.documentElement).filter(isItem).map(item => {
@@ -218,7 +303,7 @@ function createArtistElement(obj) {
   var dlbutton = document.createElement("button");
   dlbutton.className = "btn btn-default dlbutton";
   var i = document.createElement("i");
-  i.className  = "glyphicon glyphicon-download-alt";
+  i.className  = "glyphicon glyphicon-option-horizontal";
   dlbutton.appendChild(i);
   dlbutton.dataset.feed = obj.feedUrl;
   dlbutton.addEventListener("click", onClickDL);
