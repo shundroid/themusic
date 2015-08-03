@@ -1,6 +1,7 @@
 const endpoint = "https://itunes.apple.com/search";
 var storage = navigator.getDeviceStorage("music");
-
+var playaudio = new Audio("");
+var isPlaying = false;
 Array.prototype.flatten = function(){
   return Array.prototype.concat.apply([], this);
 };
@@ -116,6 +117,29 @@ function clickDLButton() {
     hideDownloadDialog();
   });
 }
+function clickPlayButton() {
+  var glyphicon = "";
+  var dataset = "";
+  if (this.dataset.play == "stoped") {
+    glyphicon = "glyphicon glyphicon-pause";
+    dataset = "playing";
+    if (isPlaying) {
+      isPlaying = false;
+      playaudio.stop();
+    }
+    playaudio.src = this.dataset.url;
+    playaudio.load();
+    playaudio.play();
+    isPlaying = true;
+  } else {
+    glyphicon = "glyphicon glyphicon-play";
+    dataset = "stoped";
+    playaudio.pause();
+    isPlaying = false;
+  }
+  this.firstChild.className = glyphicon;
+  this.dataset.play = dataset;
+}
 function createProgressElement(fileName, status) {
   if (document.getElementById(getURLFilename(fileName))) {
     // すでにある場合はRETURN
@@ -140,8 +164,6 @@ function createProgressElement(fileName, status) {
   var i = document.createElement("i");
   i.className  = "glyphicon glyphicon-download-alt";
   dlbutton.appendChild(i);
-  // dlbutton.dataset.feed = obj.feedUrl;
-  // dlbutton.addEventListener("click", onClickDL);
   div.appendChild(dlbutton);
 
   // 削除ボタン
@@ -157,8 +179,6 @@ function createProgressElement(fileName, status) {
   var i = document.createElement("i");
   i.className  = "glyphicon glyphicon-trash";
   rmbutton.appendChild(i);
-  // dlbutton.dataset.feed = obj.feedUrl;
-  // dlbutton.addEventListener("click", onClickDL);
   div.appendChild(rmbutton);
 
   var plbutton = document.createElement("button");
@@ -166,8 +186,9 @@ function createProgressElement(fileName, status) {
   var i = document.createElement("i");
   i.className  = "glyphicon glyphicon-play";
   plbutton.appendChild(i);
-  // dlbutton.dataset.feed = obj.feedUrl;
-  // dlbutton.addEventListener("click", onClickDL);
+  plbutton.dataset.play = "stoped";
+  plbutton.dataset.url = fileName;
+  plbutton.addEventListener("click", clickPlayButton);
   div.appendChild(plbutton);
 
 
