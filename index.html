@@ -24,22 +24,13 @@
           <a class="navbar-brand" href="#">
             the music
           </a>
-<!--           <ul class="nav navbar-nav">
-            <li><a href="#">1</a></li>
-            <li class="active"><a href="#">2</a></li>
-            <li><a href="#">3</a></li>
-          </ul>
- -->          <button type="button" class="btn btn-default navbar-btn" id="btn_select"><i class="glyphicon glyphicon-th-list"></i></button>
-<!--           <a href="search.html" class="btn btn-default btn-navbar">
-            <i class="glyphicon glyphicon-th-list"></i>
-          </a>
- -->          <a href="search.html" class="btn btn-default btn-navbar-right">
+          <a href="search.html" class="btn btn-default btn-navbar-right">
             <i class="glyphicon glyphicon-search"></i>
           </a>
         </div>
       </div>
     </nav>
-    <div class="container">
+    <div id="player" class="container">
       <img src="artwork.png">
       <p class="time">
         <span class="played">0:00</span>
@@ -48,25 +39,30 @@
       </p>
       <p id="title">曲のタイトル</p>
       <p id="artist">アーティストの名前</p>
-      <audio id="player" preload="true"></audio>
+      <audio preload></audio>
       <div class="volume-control">
         <i class="glyphicon glyphicon-volume-down"></i>
         <input type="range" min="0" max="100" step="1">
         <i class="glyphicon glyphicon-volume-up"></i>
       </div>      
       <div class="playback-control">
-        <button type="button" class="btn btn-default btn-block">
+        <button type="button" class="btn btn-default btn-block btn-fast-backward">
           <i class="glyphicon glyphicon-fast-backward"></i>
         </button>
-        <button type="button" class="btn btn-default btn-block">
+        <button type="button" class="btn btn-default btn-block btn-play">
           <i class="glyphicon glyphicon-play"></i>
         </button>
-        <button type="button" class="btn btn-default btn-block">
+        <button type="button" class="btn btn-default btn-block btn-pause">
+          <i class="glyphicon glyphicon-pause"></i>
+        </button>        
+        <button type="button" class="btn btn-default btn-block btn-fast-forward">
           <i class="glyphicon glyphicon-fast-forward"></i>
         </button>
       </div>
+      <button type="button" class="btn btn-default btn-block btn-select-music">
+        <i class="glyphicon glyphicon-eject"></i>
+      </button>      
     </div>
-    <audio id="audio_play"></audio>
-    <input type="file" id="file_select" accept="audio/*" />
   </body>
+
 </html>

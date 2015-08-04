@@ -18,6 +18,7 @@
     "device-storage:music": {
       "description": "",
       "access": "readwrite"
-    }    
+    },
+    "audio-channel-content": {}
   }
 }
