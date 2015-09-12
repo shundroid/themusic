@@ -7,7 +7,11 @@
     <title>Hello World</title>
     <link rel="stylesheet" href="css/bootstrap.min.css">
     <link rel="stylesheet" href="app.css">
-
+    <script src="defines.js"></script>
+    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
+    <script src="getfile.js"></script>
+    <script src="storagesystem.js"></script>
     <script src="search.js" defer></script>
   </head>
   <body>
@@ -15,7 +19,7 @@
       <div class="container-fluid">
         <div class="navbar-header">
           <a class="navbar-brand" href="#">
-            the music
+            search
           </a>
           <a href="index.html" class="btn btn-default btn-navbar-right">
             <i class="glyphicon glyphicon-music"></i>
@@ -34,6 +38,43 @@
       </form>
       <div class="alert alert-warning alert-no-search-result" role="alert">
         該当する検索結果がありませんでした。
+      </div>
+      <div id="search_result">
+        <h2>検索結果</h2>
+        <!-- 1.モーダル表示のためのボタン -->
+        <button class="btn btn-primary" data-toggle="modal" data-target="#modal-example" id="show_dialog">
+          <i class="glyphicon glyphicon-th"></i>
+        </button>
+        <span id="search_count"></span>個見つかりました<br />
+        <div id="search_result_artist">
+        </div>
+      </div>
+
+    </div>
+
+
+    <!-- 2.モーダルの配置 -->
+    <div class="modal" id="modal-example" tabindex="-1">
+      <div class="modal-dialog">
+        <!-- 3.モーダルのコンテンツ -->
+        <div class="modal-content">
+          <!-- 4.モーダルのヘッダ -->
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" id="hide_dialog">
+              <span aria-hidden="true">&times;</span>
+            </button>
+            <h4 class="modal-title" id="modal-label">ステータス</h4>
+          </div>
+          <!-- 5.モーダルのボディ -->
+          <div class="modal-body" id="progress_result">
+            
+          </div>
+          <!-- 6.モーダルのフッタ -->
+          <div class="modal-footer">
+<!--             <button type="button" class="btn btn-default" data-dismiss="modal">閉じる</button>
+            <button type="button" class="btn btn-primary">保存</button>
+ -->          </div>
+        </div>
       </div>
     </div>
   </body>

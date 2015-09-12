@@ -10,6 +10,10 @@
 
     <!-- Inline scripts are forbidden in Firefox OS apps (CSP restrictions),
          so we use a script file. -->
+    <script src="defines.js"></script>
+    <script src="storagesystem.js"></script>
+    <script src="js/jquery-1.11.3.min.js"></script>
+    <script src="js/bootstrap.min.js"></script>
     <script src="app.js" defer></script>
 
   </head>
@@ -22,13 +26,23 @@
           <a class="navbar-brand" href="#">
             the music
           </a>
-          <a href="search.html" class="btn btn-default btn-navbar-right">
-            <i class="glyphicon glyphicon-search"></i>
-          </a>
+          <div class="btn-group btn-navbar-right">
+            <form class="form-inline">
+              <button type="button" class="btn btn-default btn-select-music">
+                <i class="glyphicon glyphicon-eject"></i>
+              </button>      
+              <a href="makelist.html" class="btn btn-default">
+                <i class="glyphicon glyphicon-list"></i>
+              </a>
+              <a href="search.html" class="btn btn-default">
+                <i class="glyphicon glyphicon-search"></i>
+              </a>
+            </form>
+          </div>
         </div>
       </div>
     </nav>
-    <div class="container">
+    <div id="player" class="container">
       <img src="artwork.png">
       <p class="time">
         <span class="played">0:00</span>
@@ -37,25 +51,26 @@
       </p>
       <p id="title">曲のタイトル</p>
       <p id="artist">アーティストの名前</p>
-      <audio id="player" preload="true"></audio>
+      <audio preload></audio>
       <div class="volume-control">
         <i class="glyphicon glyphicon-volume-down"></i>
         <input type="range" min="0" max="100" step="1">
         <i class="glyphicon glyphicon-volume-up"></i>
       </div>      
-      <div class="playback-control">
-        <button type="button" class="btn btn-default btn-block">
+      <div class="playback-control btn-group">
+        <button type="button" class="btn btn-default btn-fast-backward" style="width:33%;">
           <i class="glyphicon glyphicon-fast-backward"></i>
         </button>
-        <button type="button" class="btn btn-default btn-block">
+        <button type="button" class="btn btn-default btn-play" style="width:34%;">
           <i class="glyphicon glyphicon-play"></i>
         </button>
-        <button type="button" class="btn btn-default btn-block">
+        <button type="button" class="btn btn-default btn-pause" style="width:34%;">
+          <i class="glyphicon glyphicon-pause"></i>
+        </button>        
+        <button type="button" class="btn btn-default btn-fast-forward" style="width:33%;">
           <i class="glyphicon glyphicon-fast-forward"></i>
         </button>
       </div>
     </div>
-    <script src="js/bootstrap.min.js"></script>
   </body>
-
 </html>

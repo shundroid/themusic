@@ -58,10 +58,56 @@ input[type=range]{
   font-size: 200%;
   text-align: center;
   margin-top: 1.5rem;
-  margin-bottom: .5rem;
+  margin-bottom: 0.5rem;
+  text-overflow: ellipsis;
+  /*max-width: 75%;*/
+  white-space:nowrap;
+  overflow:hidden;
 }
 #artist{
   font-size: 140%;
   text-align: center;
   margin-top: 0.5rem;
+  text-overflow: ellipsis;
+  width: 100%;
+  white-space:nowrap;
+  overflow:hidden;
+}
+
+#search_result {
+  display: none;
+}
+.artwork {
+  width: 70px;
+  height: 70px;
+  float: left;
+  margin-right: 5px;
+  margin-bottom: 5px;
+}
+
+.col_name {
+  font-size: x-small;
+}
+
+.dlbutton {
+  float: right;
+}
+
+#file_select {
+  display: none;
+}
+
+.progress_music {
+  margin-bottom: 5px;
+}
+.prog_fn {
+  font-weight: bold;
+}
+
+#search_result_artist {
+  margin-top: 5px;
+}
+
+#player img {
+  max-width: 300px;
 }
