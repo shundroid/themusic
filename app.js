@@ -181,13 +181,27 @@ function toSelectMusic(){
 }
 
 function setMusic(music){
-  player.pause();
-  player.src = URL.createObjectURL(music.blob);
-  player.artist = music.metadata.artist;
-  player.title = music.metadata.title;
-  player.artwork = URL.createObjectURL(music.metadata.picture);
+  var a = (m) => {
+    player.pause();
+    player.artist = m.metadata.artist;
+    player.title = m.metadata.title;
+    console.log(m.metadata.picture);
+    player.artwork = URL.createObjectURL(m.metadata.picture);
+  }
+  if (isfxos) {
+    console.log(music);
+    player.src = URL.createObjectURL(music.blob);
+    a(music);
+  } else {
+    shunstrg.getBlob(music).then(m => {
+      player.src = URL.createObjectURL(m.blob);
+      a(m);
+    });
+  }
 }
 
+var shunstrg;
+var onClickSelectMusic;
 function pickMusic(){
   return new Promise((resolve, reject) =>{
     if (isfxos) {
@@ -204,11 +218,22 @@ function pickMusic(){
         reject(this.error);
       };
     } else {
-      var req = new shunStorage();
-      req.pick(event => {
-        resolve(event);
-      }, error => {
-        reject(error);
+      shunstrg.list().then(function(r) {
+        //console.log(r);
+        for (var i = 0; i < r.length; i++) {
+          var btn = document.createElement("button");
+          btn.type = "button";
+          btn.className = "list-group-item select-music-item";
+          btn.id = "select_" + i.toString();
+          btn.addEventListener("click", selectMusicItem);
+          btn.innerHTML = r[i];
+          document.getElementById("music_select").appendChild(btn);
+        }
+        document.getElementById("show_dialog").click();
+        onClickSelectMusic = t => {
+          console.log("TT");
+          resolve(t);
+        };
       });
     }
   });
@@ -218,7 +243,19 @@ function selectMusic(){
   pickMusic().then(setMusic);
 }
 
+function selectMusicItem() {
+  document.getElementById("music_selected_item").textContent = this.textContent;
+}
+function clickSelectMusic() {
+  document.getElementById("hide_dialog").click();
+  onClickSelectMusic(document.getElementById("music_selected_item").textContent);
+}
+document.addEventListener("DOMContentLoaded", function() {
+  document.getElementById("music_select_btn").addEventListener("click", clickSelectMusic);
+});
 window.addEventListener("load", function() {
+  shunstrg = new shunStorage();
+  shunstrg.init();
   player.initialize();
   document.querySelector(".btn-select-music").addEventListener("click", event =>{
     selectMusic();

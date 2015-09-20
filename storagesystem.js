@@ -73,9 +73,9 @@ function shunStorage() {
   };
 
   this.cursor = function() {
-    var a = event => {
+    var a = e => {
       console.log("onsuccess");
-      db = event.target.result;
+      db = e.target.result;
 
       var t = db.transaction(["mystore"], "readwrite");
       var s = t.objectStore("mystore");
@@ -114,6 +114,49 @@ function shunStorage() {
     } else {
       a();
     }
+  }
+
+  this.list = function() {
+    return new Promise(fx => {
+      var a = event => {
+        var t = db.transaction(["mystore"], "readwrite");
+        var s = t.objectStore("mystore");
+        var r = s.openCursor();
+
+        var result = [];
+        r.onsuccess = e => {
+          if (e.target.result == null) {
+            fx(result);
+            return;
+          }
+          var cursor = e.target.result;
+          result.push(cursor.key);
+          cursor.continue();
+        }
+      };
+      if (!isInit) {
+        s$.init().then(a);
+      } else {
+        a(_event);
+      }
+    });
+  }
+
+  this.getBlob = function(k) {
+    return new Promise(resolve => {
+      var key = k;
+      var transaction = db.transaction(["mystore"], "readwrite");
+      var store = transaction.objectStore("mystore");
+      var request = store.get(key);
+      request.onsuccess = function (event) {
+        if (event.target.result === undefined) {
+          // キーが存在しない場合の処理
+        } else {
+          // 取得成功
+         resolve(event.target.result.myvalue);
+        }
+      };
+    });
   }
 };
 

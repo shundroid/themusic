@@ -111,3 +111,9 @@ input[type=range]{
 #player img {
   max-width: 300px;
 }
+.select-music-item {
+  
+}
+button.tm-hide-btn {
+  display: none;
+}

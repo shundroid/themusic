@@ -7,6 +7,9 @@ var storage;
 
 var playaudio = new Audio("");
 var isPlaying = false;
+
+var artwork;
+
 Array.prototype.flatten = function(){
   return Array.prototype.concat.apply([], this);
 };
@@ -26,11 +29,13 @@ function createFilenameFromURL(url){
 function saveMusic(resource){
   // ダウンロード終了
   console.log("downloaded_1");
+  console.log(resource);
   changeProgressStatus(getURLFilename(resource.url), "完了");
   var fileName = createFilenameFromURL(resource.url);
   return new Promise((resolve, reject) => {
     console.log("attempt to save a blob as " + fileName);
     console.log(resource.blob);
+    console.log(resource);
     if (isfxos) {
       var req = storage.addNamed(resource.blob, fileName);
       req.onsuccess = function(){
@@ -40,16 +45,38 @@ function saveMusic(resource){
         reject(this.error);
       };
     } else {
-      var req = storage.save(resource.blob, fileName, function() {
-        resolve();
-      }, function() {
-        reject();
-      })
+      var artwork = document.querySelector("#art_" + resource.artist + " img").src;
+      downloadArtwork("https://shundroidk.azurewebsites.net/themusic/cdn/datasrc.php?q=" + encodeURIComponent(artwork)).then(art => {
+        console.log(art);
+        var req = storage.save({
+          blob: resource.blob,
+          metadata: {
+            artist: resource.artist,
+            title: resource.title,
+            picture: art
+          }
+        }, fileName, function() {
+          resolve();
+        }, function() {
+          reject();
+        })
+      });
     }
   });
 }
 
-function fetchMusic(url){
+function downloadArtwork(url) {
+  return new Promise(fx => {
+    var xhr = new XMLHttpRequest({mozSystem: true});
+    xhr.onload = () => {
+      fx(xhr.response);
+    };
+    xhr.open("GET", url, true);
+    xhr.responseType = "blob";
+    xhr.send();
+  });
+}
+function fetchMusic(url, data){
   return new Promise((resolve, reject) => {
       console.log("downloaded file " + url);
       changeProgressStatus(getURLFilename(url), "ダウンロード済み")
@@ -58,7 +85,8 @@ function fetchMusic(url){
       req.onload = () => {
         var blob = req.response;
         console.log(req.response);
-        resolve({url: url, blob: blob}); 
+        console.log(data);
+        resolve({url: url, blob: blob, artist: data.artist, title: data.title }); 
       };
       req.onerror = (e) =>{
         reject(e);
@@ -66,14 +94,15 @@ function fetchMusic(url){
       req.addEventListener("progress", event => {
         changeProgressStatus(getURLFilename(url), "ダウンロード中(" + Math.floor(parseInt(event.loaded/event.total*10000)/100).toString() + "%)");
       });
-      req.open("GET", url, true);
+      console.log("https://shundroidk.azurewebsites.net/themusic/cdn/mp3.php?q=" + encodeURIComponent(url));
+      req.open("GET", "https://shundroidk.azurewebsites.net/themusic/cdn/mp3.php?q=" + encodeURIComponent(url), true);
       req.responseType = "blob";
       req.send();
   });
 }
 
-function downloadMusic(url){
-  return fetchMusic(url).then(saveMusic).then(name => {
+function downloadMusic(url, data){
+  return fetchMusic(url, data).then(saveMusic).then(name => {
     return new Promise((resolve, reject) => {
       resolve(name);
     });
@@ -106,14 +135,16 @@ function existFile(f) {
   });
 }
 
-function showDownloadDialog(urlList){
+function showDownloadDialog(urlList, data){
   //document.getElementById("progress_result").innerHTML = "";
   document.getElementById("show_dialog").click();
   var listElem = document.getElementById("progress_result");
   urlList.forEach(i => {
   	existFile(createFilenameFromURL(i)).then(result => {
   	  var statusT = result ? "ダウンロード済み": "保留中";//existFile(createFilenameFromURL(i)) ? "ダウンロード済み" : "保留中";
-      listElem.appendChild(createProgressElement(i, statusT));
+      var afterData = data;
+      afterData.title = getURLFilename(i);
+      listElem.appendChild(createProgressElement(i, statusT, data));
   	});
   });
 }
@@ -126,10 +157,11 @@ function clickRemoveButton() {
   };
 }
 function clickDLButton() {
-  downloadMusic(this.dataset.filename).then(() => {
+  //console.log(this.dataset);
+  downloadMusic(this.dataset.filename, { artist: this.dataset.artist, title: this.dataset.title}).then(() => {
     console.log("downloaded");
     hideDownloadDialog();
-    window.location.href = "index.html#selectMusic";
+    //window.location.href = "index.html#selectMusic";
   }, error => {
     console.warn(error);
     hideDownloadDialog();
@@ -158,7 +190,7 @@ function clickPlayButton() {
   this.firstChild.className = glyphicon;
   this.dataset.play = dataset;
 }
-function createProgressElement(fileName, status) {
+function createProgressElement(fileName, status, data) {
   if (document.getElementById(getURLFilename(fileName))) {
     // すでにある場合はRETURN
     return;
@@ -176,8 +208,12 @@ function createProgressElement(fileName, status) {
   	if (!result) dlbutton.style.display = "block";
   });
   dlbutton.dataset.filename = fileName;
-  dlbutton.addEventListener("click", clickDLButton);
 
+  // Firefox OS以外で、Album nameとArtist nameなどを使うとき。
+  dlbutton.dataset.artist = data.artist;
+  dlbutton.dataset.title = data.title;
+
+  dlbutton.addEventListener("click", clickDLButton);
   var i = document.createElement("i");
   i.className  = "glyphicon glyphicon-download-alt";
   dlbutton.appendChild(i);
@@ -237,8 +273,9 @@ function hideDownloadDialog(){
   document.getElementById("hide_dialog").click();
 }
 
-function downloadAlbum(urlList){
-  showDownloadDialog(urlList);
+function downloadAlbum(urlList, data){
+  console.log(data);
+  showDownloadDialog(urlList, data);
   // Promise.all(urlList.map(downloadMusic)).then(() => {
   //   console.log("all files have been downloaded");
   //   hideDownloadDialog();
@@ -324,18 +361,29 @@ function onClickDL() {
         return item.childNodes.toArray();
       }).flatten().filter(hasEnclosure).map(item => {
         return item.getAttribute("url");
+      }); 
+      downloadAlbum(urls, {
+        artist: this.dataset.artist
+        // あとでつきます。
+        //title: 0
       });
-      downloadAlbum(urls);
     }
   };
-  req.open("GET", feedUrl + escape(this.dataset.feed));
+  var host;
+  if (isfxos) {
+    host = this.dataset.feed;
+  } else {
+    host = feedUrl + escape(this.dataset.feed);
+  }
+  console.log(this.dataset.feed);
+  req.open("GET", host);
   req.send();
-  console.log(feedUrl + escape(this.dataset.feed));
 }
 
 function createArtistElement(obj) {
   var elem = document.createElement("div");
   elem.className = "artist";
+  elem.id = "art_" + obj.artistName;
 
   var artwork = document.createElement("img");
   artwork.className = "artwork";
@@ -348,6 +396,8 @@ function createArtistElement(obj) {
   i.className  = "glyphicon glyphicon-option-horizontal";
   dlbutton.appendChild(i);
   dlbutton.dataset.feed = obj.feedUrl;
+  // fxos以外で、artistnameを使うとき用。
+  dlbutton.dataset.artist = obj.artistName;
   dlbutton.addEventListener("click", onClickDL);
   elem.appendChild(dlbutton);
   var artist_name = document.createElement("span");
@@ -406,8 +456,8 @@ function initialize(){
     feedUrl = "";
   } else {
     endpoint = "https://shundroidk.azurewebsites.net/themusic/cdn/podcastjson.php";
-    storage = new shunStorage();
-    feedUrl = "https://shundroidk.azurewebsites.net/themusic/cdn/datasrc.php?q=";
+    storage = new shunStorage()
+;    feedUrl = "https://shundroidk.azurewebsites.net/themusic/cdn/datasrc.php?q=";
     storage.init();
   }
   var searchArea = document.querySelector(".form-search input[type=text]");
